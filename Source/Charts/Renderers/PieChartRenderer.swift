@@ -118,9 +118,9 @@ open class PieChartRenderer: DataRenderer
         let entryCount = dataSet.entryCount
         var drawAngles = chart.drawAngles
         let center = chart.centerCircleBox
-        let radius = chart.radius
+        let radius = chart.radius - 1 // -1 -> Fix altrimenti viene tagliato il bordo esterno del grafico
         let drawInnerArc = chart.drawHoleEnabled && !chart.drawSlicesUnderHoleEnabled
-        let userInnerRadius = drawInnerArc ? radius * chart.holeRadiusPercent : 0.0
+        let userInnerRadius = drawInnerArc ? (radius * chart.holeRadiusPercent) + 1 : 0.0                     // +1 -> Fix altrimenti viene tagliato il bordo esterno del grafico
         
         var visibleAngleCount = 0
         for j in 0 ..< entryCount
@@ -151,6 +151,9 @@ open class PieChartRenderer: DataRenderer
                     let accountForSliceSpacing = sliceSpace > 0.0 && sliceAngle <= 180.0
                     
                     context.setFillColor(dataSet.color(atIndex: j).cgColor)
+                    
+                    // TODO: MacTeo: this has been added
+                    context.setStrokeColor(strokeColor)
                     
                     let sliceSpaceAngleOuter = visibleAngleCount == 1 ?
                         0.0 :
@@ -244,7 +247,16 @@ open class PieChartRenderer: DataRenderer
                     
                     context.beginPath()
                     context.addPath(path)
+                    
+                    // MacTeo: those are useful to stroke the path
+                    context.setLineWidth(1.0)
+                    context.drawPath(using: CGPathDrawingMode.stroke)
+                    context.drawPath(using: CGPathDrawingMode.fill)
+                    context.addPath(path)
+                    
                     context.fillPath(using: .evenOdd)
+                    
+                    context.strokePath()
                 }
             }
             
@@ -561,7 +573,9 @@ open class PieChartRenderer: DataRenderer
             context.saveGState()
             
             let radius = chart.radius
-            let holeRadius = radius * chart.holeRadiusPercent
+            // MacTeo this fixes the inner border not visible
+            // TODO: parameterize it
+            let holeRadius = radius * chart.holeRadiusPercent - 1
             let center = chart.centerCircleBox
             
             if let holeColor = chart.holeColor

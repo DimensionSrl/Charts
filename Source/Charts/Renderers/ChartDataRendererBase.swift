@@ -17,6 +17,22 @@ open class DataRenderer: Renderer
 {
     @objc open let animator: Animator
     
+    // slices and border StrokeColor
+    fileprivate var _strokeColor: CGColor = UIColor(red: 228/255, green: 228/255, blue: 228/255, alpha: 1.0).cgColor
+    
+    //added by Vido -> slices and border StrokeColor
+    open var strokeColor: CGColor
+        {
+        get
+        {
+            return _strokeColor
+        }
+        set
+        {
+            _strokeColor = newValue
+        }
+    }
+    
     @objc public init(animator: Animator, viewPortHandler: ViewPortHandler)
     {
         self.animator = animator
